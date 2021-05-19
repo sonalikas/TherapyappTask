@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  therapyapptask
+
+  Sample SAM Template for therapyapptask
+Globals:
+  Function:
+      Runtime: java11
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          THERAPY_TABLE: !Ref TherapyTable
+     
+
+
+Resources:
+  TherapyTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: TherapistId
+        Type: Number
+     
+    
+    
+  AddTherapyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: therapyapptask
+      Handler: com.aws.lambda.therapy.apis.AddTherapistLambda::addTherapy
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TherapyTable
+      Events:
+        TherapyEvents:
+          Type: Api
+          Properties:
+            Path: /therapy
+            Method: POST
+  GetTherapyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: therapyapptask
+      Handler: com.aws.lambda.therapy.apis.GetTherapyLambda::getTherapy
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TherapyTable
+      Events:
+        TherapyEvents:
+          Type: Api
+          Properties:
+            Path: /therapy
+            Method: GET
+  UpdateTherapyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: therapyapptask
+      Handler: com.aws.lambda.therapy.apis.UpdateTherapyLambda::updateTherapy
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TherapyTable
+      Events:
+        TherapyEvents:
+          Type: Api   
+          Properties:
+            Path: /therapy/{id}
+            Method: PUT
+  DeleteTherapyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: therapyapptask
+      Handler: com.aws.lambda.therapy.apis.DeleteTherapyLambda::deleteTherapy
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TherapyTable
+      Events:
+        TherapyEvents:
+          Type: Api   
+          Properties:
+            Path: /therapy/{id}
+            Method: DELETE
